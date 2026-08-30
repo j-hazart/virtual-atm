@@ -1,10 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CardNumberInput from "./CardNumberInput";
 import axios from "axios";
 
 import "../../styles/Home.css";
 import ElectronicTerminal from "./ElectronicTerminal";
 import CreditCard from "./CreditCard";
+import {
+  separateCardNumber,
+  hideCardNumber,
+} from "../../services/formatCardNumbers";
+
+const DEMO_CARDS = [
+  {
+    name: "John Doe",
+    number: "1111222233334444",
+  },
+  {
+    name: "Jane Smith",
+    number: "9999888877776666",
+  },
+];
 
 export default function CardInteraction() {
   const [inputCardNumbers, setInputCardNumbers] = useState("");
@@ -12,6 +27,18 @@ export default function CardInteraction() {
   const [isCardInserted, setIsCardInserted] = useState(false);
   const [isCardValidated, setIsCardValidated] = useState(false);
   const [message, setMessage] = useState("Veuillez insérer votre carte");
+
+  function handleSelectDemoCard(number) {
+    setInputCardNumbers(number);
+    setMessage("Veuillez insérer votre carte");
+    setIsCardValidated(false);
+
+    let cardIdValue = "";
+    number.split("").forEach((n, i) => {
+      cardIdValue += separateCardNumber(i, 4) + hideCardNumber(i, n, 12);
+    });
+    setCardNumbers(cardIdValue);
+  }
 
   function handleCardVerification(number) {
     axios
@@ -33,8 +60,6 @@ export default function CardInteraction() {
       });
   }
 
-  useEffect(() => {});
-
   /**
    * The function `handleCardInserted` checks if a valid card number has been entered and if it is
    * associated with a user account.
@@ -55,7 +80,33 @@ export default function CardInteraction() {
   }
 
   return (
-    <section className="flex flex-col items-center gap-2">
+    <section className="flex flex-col items-center gap-4">
+      {/* Panneau Démo */}
+      <div className="flex flex-col items-center gap-2 rounded-2xl bg-primary p-4 shadow-neo text-secondary">
+        <div className="flex items-center gap-2 text-sm font-semibold">
+          <span>💡 Comptes de démonstration</span>
+          <span className="rounded-full bg-screen px-2.5 py-0.5 text-xs font-bold text-secondary shadow-neo_inset">
+            Code PIN : 1234
+          </span>
+        </div>
+        <div className="flex flex-wrap justify-center gap-3 pt-1">
+          {DEMO_CARDS.map((card) => (
+            <button
+              key={card.number}
+              type="button"
+              onClick={() => handleSelectDemoCard(card.number)}
+              className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${
+                inputCardNumbers === card.number
+                  ? "shadow-neo_inset text-green-700 font-bold"
+                  : "shadow-neo hover:shadow-neo_inset active:shadow-neo_inset"
+              }`}
+            >
+              💳 {card.name} : {card.number.replace(/(\d{4})/g, "$1 ").trim()}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <CardNumberInput
         inputCardNumbers={inputCardNumbers}
         setInputCardNumbers={setInputCardNumbers}

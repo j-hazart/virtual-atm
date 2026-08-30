@@ -8,7 +8,7 @@ const router = require("./router");
 const app = express();
 
 const corsOptions = {
-  origin: process.env.FRONTEND_URL,
+  origin: process.env.FRONTEND_URL || "*",
 };
 
 app.use(cors(corsOptions));
